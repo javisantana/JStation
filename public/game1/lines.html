@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+    <head>
+        <title>G</title>
+        <meta charset="utf-8" />
+    </head>
+    <body>
+        <script src="js/underscore.js"> </script>
+        <script src="js/game.js"> </script>
+        <script>
+            _.extend(Game.prototype, {
+                init: function() {
+                    this.layer = this.add_layer();
+                    this.pos = 0;
+                },
+
+                update: function() {
+                },
+
+                render: function() {
+                    this.layer.fillRect(this.pos++, 0, 100, 100);
+                }
+            });
+            var g = new Game();
+            g.start();
+        </script>
+    </body>
+</html>
+
