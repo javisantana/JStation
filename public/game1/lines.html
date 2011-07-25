@@ -5,24 +5,62 @@
         <meta charset="utf-8" />
     </head>
     <body>
+
         <script src="js/underscore.js"> </script>
+        <script src="js/backbone.js"> </script>
         <script src="js/game.js"> </script>
+
         <script>
-            _.extend(Game.prototype, {
+            var Player = function(x, y) {
+                this.x = x || 0;
+                this.y = y || 0;
+                this.srcx = Math.random()*100;
+                this.srcy = Math.random()*100;
+                this.vel = Math.random()*0.001;
+                this.time = 0;
+            };
+
+            Player.prototype.update = function(dt) {
+                var p = this;
+                p.time += dt;
+                p.x = 100*Math.cos(p.time*p.vel);
+                p.y = 100*Math.sin(p.time*p.vel);
+            };
+
+            Player.prototype.render = function(ctx) {
+                var p = this;
+                ctx.fillRect(p.x, p.y, 10, 10);
+            };
+
+            var TestGame = Game.extend({
+
+                players: [],
+
                 init: function() {
-                    this.layer = this.add_layer();
+                    _.bindAll(this, 'on_new_player', 'render', 'render');
+                    this.layer = this.create_layer();
                     this.pos = 0;
+                    this.bind('newplayer', this.on_new_player);
                 },
 
-                update: function() {
+                on_new_player: function() {
+                    this.players.push(new Player());
+                },
+
+                update: function(dt) {
+                    _.each(this.players,function(p) { p.update(dt) });
                 },
 
                 render: function() {
-                    this.layer.fillRect(this.pos++, 0, 100, 100);
+                    // clear layer
+                    var game = this;
+                    game.layer.clearRect(-this.widthHalf, -this.heightHalf, 2*this.widthHalf, 2*this.heightHalf);
+                    _.each(this.players, function(p) { p.render(game.layer) });
                 }
             });
-            var g = new Game();
+            var g = new TestGame();
             g.start();
+            g.on_new_player();
         </script>
     </body>
 </html>

@@ -1,9 +1,5 @@
 
-function Game() {
-    this.initialize();
-}
-
-_.extend(Game.prototype, {
+var Game = Backbone.View.extend({
 
     initialize: function() {
         this.setupDOM();
@@ -17,7 +13,7 @@ _.extend(Game.prototype, {
         this.doc = doc;
     },
 
-    add_layer: function() {
+    create_layer: function() {
         var doc = this.doc;
         var canvas = doc.createElement('canvas');
         doc.body.appendChild(canvas);
@@ -25,6 +21,8 @@ _.extend(Game.prototype, {
         var height = innerHeight;
         var widthHalf = width >> 1;
         var heightHalf = height >> 1;
+        this.widthHalf = widthHalf;
+        this.heightHalf = heightHalf;
 
         canvas.style.position = 'absolute';
         canvas.style.top = '0';
@@ -37,6 +35,7 @@ _.extend(Game.prototype, {
         c.width = width;
         c.height = height;
         c.translate( widthHalf, heightHalf );
+        c.canvas = canvas;
         return c;
     },
 
