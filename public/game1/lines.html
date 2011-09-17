@@ -2,16 +2,24 @@
 <html>
     <head>
         <title>G</title>
+        <style>
+            body {
+                background-color: #555;
+            }
+        </style>
         <meta charset="utf-8" />
     </head>
     <body>
 
         <script src="js/underscore.js"> </script>
         <script src="js/backbone.js"> </script>
+        <script src="js/math.js"> </script>
         <script src="js/vec2.js"> </script>
         <script src="js/game.js"> </script>
 
         <!-- game specific -->
+        <script src="entities.js"> </script>
+        <script src="particles.js"> </script>
         <script src="bullet.js"> </script>
         <script src="player.js"> </script>
 
@@ -51,7 +59,7 @@
                 init: function() {
                     _.bindAll(this, 'on_new_player', 'render', 'render');
                     this.bkg = new GameBkg(this.create_layer());
-                    this.bkg.render();
+                    //this.bkg.render();
                     this.layer = this.create_layer();
                     this.pos = 0;
                     this.bind('newplayer', this.on_new_player);
@@ -63,7 +71,7 @@
 
                 update: function(dt) {
                     _.each(this.players,function(p) { p.update(dt) });
-                    bullets.update(dt);
+                    entities.update(dt);
                 },
 
                 render: function() {
@@ -71,7 +79,7 @@
                     var game = this;
                     game.layer.clearRect(-this.widthHalf, -this.heightHalf, 2*this.widthHalf, 2*this.heightHalf);
                     _.each(this.players, function(p) { p.render(game.layer) });
-                    bullets.render(game.layer);
+                    entities.render(game.layer);
                 }
             });
             var g = new TestGame();

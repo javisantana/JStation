@@ -15,7 +15,12 @@ Player.prototype.update = function(dt) {
     this.angle += PLAYER_TURN_VEL*(dt*controls.left - dt*controls.right);
 
     if(this.controller.controls.fire) {
-        window.bullets.fire(p.pos, vec2.fromAngle(this.angle));
+        window.bullets.fire(p.pos, 
+            vec2.mul(
+                1.0 + 0.1*rand01(),
+                vec2.fromAngle(this.angle + 0.3*rand01())));
+        if(rand01() <0.1) 
+            Explosion(p.pos);
     }
     //p.pos.x = 100*Math.cos(p.time*p.vel);
     //p.pos.y = 100*Math.sin(p.time*p.vel);
