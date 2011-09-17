@@ -1,4 +1,6 @@
 
+cos = Math.cos
+sin = Math.sin
 function vec2(x, y) {
 
     this.x = x || 0;
@@ -8,6 +10,8 @@ function vec2(x, y) {
         var v = this;
         return v.x*v.x + v.y*v.y;
     }
+
+    this.clone = function() { return new vec2(this.x, this.y); }
 }
 
 vec2.add = function(a, b) {
@@ -16,5 +20,9 @@ vec2.add = function(a, b) {
 
 vec2.mul = function(scalar, b) {
     return new vec2(scalar*b.x, scalar*b.y);
+}
+
+vec2.fromAngle = function(angle) {
+    return new vec2(cos(angle), sin(angle));
 }
 

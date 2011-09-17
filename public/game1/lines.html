@@ -16,12 +16,42 @@
         <script src="player.js"> </script>
 
         <script>
+            var GameBkg = function(ctx) {
+                var GRID_SIZE = 20;
+
+                this.update = function(dt) {
+                }
+
+                this.render = function() {
+                    var c = ctx;
+                    c.translate( -c.width/2, -c.height/2);
+                    var ds = c.width/GRID_SIZE;
+                    c.strokeStyle= "rgba(0, 100, 0, 1)";
+                    c.beginPath();
+                    for(var i = 0; i < GRID_SIZE;  ++i) {
+                        var x = i*ds ;
+                        c.moveTo(x, 0);
+                        c.lineTo(x, c.height);
+                    }
+                    for(var i = 0; i < GRID_SIZE;  ++i) {
+                        var y = i*ds;
+                        c.moveTo(0, y);
+                        c.lineTo(c.width, y);
+                    }
+                    c.stroke();
+                }
+
+
+            }
+
             var TestGame = Game.extend({
 
                 players: [],
 
                 init: function() {
                     _.bindAll(this, 'on_new_player', 'render', 'render');
+                    this.bkg = new GameBkg(this.create_layer());
+                    this.bkg.render();
                     this.layer = this.create_layer();
                     this.pos = 0;
                     this.bind('newplayer', this.on_new_player);

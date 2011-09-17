@@ -2,6 +2,7 @@
 
 var Bullet = function(pos, vel) {
     this.pos = pos;
+    this.oldpos = pos;
     this.vel = vel;
 };
 
@@ -9,6 +10,7 @@ Bullet.prototype.update = function(dt) {
     var p = this;
     p.time += dt;
 
+    this.oldpos = this.pos.clone();
     p.pos = vec2.add(p.pos, vec2.mul(dt, p.vel));
     //p.pos.x = 100*Math.cos(p.time*p.vel);
     //p.pos.y = 100*Math.sin(p.time*p.vel);
@@ -16,7 +18,11 @@ Bullet.prototype.update = function(dt) {
 
 Bullet.prototype.render = function(ctx) {
     var p = this.pos;
-    ctx.fillRect(p.x, p.y, 5, 5);
+    var p0 = this.oldpos;
+    ctx.beginPath();
+    ctx.moveTo(p0.x,p0.y);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
 };
 
 var Bullets = function() {
