@@ -25,6 +25,7 @@ Bullet.prototype.update = function(dt) {
 Bullet.prototype.render = function(ctx) {
     var p = this.pos;
     var p0 = this.oldpos;
+    ctx.fillStyle = "rgb(157, 170, 195)";
     ctx.fillRect(p.x, p.y, 2, 2);
     /*
     ctx.beginPath();

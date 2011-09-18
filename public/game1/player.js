@@ -1,5 +1,11 @@
 
 
+var img = document.createElement("img");
+img.src = '/img/player.png';
+img.width = '32px';
+img.height = '32px';
+
+
 var Player = function(pos, controller) {
     this.pos = pos;
     this.angle = 0;
@@ -28,6 +34,7 @@ Player.prototype.update = function(dt) {
 
 Player.prototype.render = function(ctx) {
     var p = this.pos;
-    ctx.fillRect(p.x, p.y, 10, 10);
+    //ctx.fillRect(p.x, p.y, 10, 10);
+    ctx.drawImage(img, p.x, p.y, 32, 32);
 };
 
