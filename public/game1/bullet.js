@@ -1,5 +1,8 @@
 
 
+var bullet_img = document.createElement('img');
+bullet_img.src = '/img/fire.png';
+
 var Bullet = function(pos, vel) {
     this.pos = pos;
     this.oldpos = pos;
@@ -25,8 +28,9 @@ Bullet.prototype.update = function(dt) {
 Bullet.prototype.render = function(ctx) {
     var p = this.pos;
     var p0 = this.oldpos;
-    ctx.fillStyle = "rgb(157, 170, 195)";
-    ctx.fillRect(p.x, p.y, 2, 2);
+    //ctx.fillStyle = "rgb(157, 170, 195)";
+    //ctx.fillRect(p.x, p.y, 2, 2);
+    ctx.drawImage(bullet_img, p.x, p.y, 15, 1);
     /*
     ctx.beginPath();
     ctx.moveTo(p0.x,p0.y);
