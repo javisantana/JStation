@@ -12,7 +12,6 @@ app.configure(function(){
 
 // root, er, route
 app.get('/', function(req, res){
-  // maybe do something here - could be an API endpoint for comms with Rails?
 });
 
 // set http server listening on a nice port
@@ -23,9 +22,16 @@ app.listen(8080, function () {
 
 
 var io         = sio.listen(app);
+var master = null;
 io.sockets.on('connection', function (socket) {
-  socket.on('update_location', function (touch) {
-    //console.log(JSON.stringify(touch))
-    socket.volatile.broadcast.emit('touch', touch);
+  socket.on('master', function() {
+    master = socket;
+  });
+  socket.on('update_controller', function (touch) {
+    console.log(JSON.stringify(touch));
+    if(master !== null) {
+        //socket.volatile.broadcast.emit('touch', touch);
+        master.emit('update_controller', touch);
+    }
   });
 });

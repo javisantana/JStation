@@ -74,7 +74,8 @@ function resetCanvas (e) {
 }
 
 function init(){
-     socket = io.connect('192.168.1.35');
+     socket = io.connect('192.168.0.101');
+     console.log('connected');
 }
 
 function draw() {
