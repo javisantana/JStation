@@ -25,8 +25,21 @@ Entities.prototype.render = function(ctx) {
         b[i].render(ctx);
     }
 };
+/*
+Entities.prototype.get_by_type = function(type) {
+    var t = [];
+    for(var i = 0; i < b.length; ++i) {
+        var a = b[i];
+        if(a.type === type) {
+            t.push(a);
+        }
+    }
+    return t;
+}
+*/
 
 window.entities = new Entities();
+//window.bullets_entities = new Entities();
 
 setInterval(function() {
     console.log(entities.ent.length);

@@ -22,6 +22,7 @@
         <script src="js/game.js"> </script>
 
         <!-- game specific -->
+        <script src="image.js"> </script>
         <script src="entities.js"> </script>
         <script src="particles.js"> </script>
         <script src="bullet.js"> </script>
@@ -65,17 +66,33 @@
                     this.bkg = new GameBkg(this.create_layer());
                     //this.bkg.render();
                     this.layer = this.create_layer();
+                    this.layer.globalCompositeOperation = 'lighter';
                     this.pos = 0;
                     this.bind('newplayer', this.on_new_player);
                 },
 
                 on_new_player: function(controller) {
                     this.players.push(new Player(new vec2(0, 0), controller));
+                    this.players.push(new Player(new vec2(300, 0), controller));
                 },
 
                 update: function(dt) {
                     _.each(this.players,function(p) { p.update(dt) });
                     entities.update(dt);
+                    bullets.update(dt);
+                    this.check_collisions();
+                },
+
+                check_collisions: function() {
+                    _.each(this.players, function(p) { 
+                        for(var i = 0; i < bullets.ent.length; ++i) {
+                            var b = bullets.ent[i];
+                            if(p.collide(b.pos)) {
+                                //p.damaged();
+                                b.explode = true;
+                            }
+                        }
+                     });
                 },
 
                 render: function() {
@@ -84,6 +101,7 @@
                     game.layer.clearRect(-this.widthHalf, -this.heightHalf, 2*this.widthHalf, 2*this.heightHalf);
                     _.each(this.players, function(p) { p.render(game.layer) });
                     entities.render(game.layer);
+                    bullets.render(game.layer);
                 }
             });
             var g = new TestGame();
