@@ -1,10 +1,6 @@
 
 
-var img = document.createElement("img");
-img.src = '/img/player.png';
-img.width = '32px';
-img.height = '32px';
-
+var img = load_image('player.png');
 
 var Player = function(pos, controller) {
     this.pos = pos;
@@ -15,7 +11,7 @@ var Player = function(pos, controller) {
 };
 
 Player.prototype.update = function(dt) {
-    var PLAYER_TURN_VEL = 0.01
+    var PLAYER_TURN_VEL = 0.003;
     var p = this;
     p.time += dt;
 
@@ -43,7 +39,13 @@ Player.prototype.render = function(ctx) {
     var p = this.pos;
     var s = this.size;
     var s2 = s >> 1;
-    //ctx.fillRect((p.x - s2)>>0, (p.y - s2)>>0, s, s);
+    var canon_h = s >> 4;
     ctx.drawImage(img, (p.x - s2)>>0, (p.y - s2)>>0, s, s);
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(this.angle);
+    ctx.fillStyle = 'rgb(157, 170, 195)';
+    ctx.fillRect(5, -canon_h/2, s2, canon_h);
+    ctx.restore();
 };
 

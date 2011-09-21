@@ -2,8 +2,9 @@
 <html lang=en>
 <head>
 <meta charset=utf-8>
-<meta name="viewport" content="width=device-width; height=device-height; initial-scale=1.0; maximum-scale=1.0;" />
+<meta name="viewport" content="width=device-width; height=device-height; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;" />
 <script src="/socket.io/socket.io.js"></script>
+<script src="/game1/js/vec2.js"></script>
 
 <title></title>
 <style type="text/css">
@@ -71,20 +72,13 @@
 
 
 </head>
-    <body onload = "init_controller()">
+    <body onload = "init()">
 
-    <div id="controller">
-        <div id="button_left">
-        </div>
-        <div id="button_right">
-        </div>
-        <div id="button_a">
-        </div>
-    </div>
 
     <script>
     var socket;
     var name = '';
+    var canvas;
 
     var controller_info = {
         left: false,
@@ -99,26 +93,8 @@
     }
 
     touchable = 'createTouch' in document
-    function button(id, name) {
-        var b = document.getElementById(id);
-        function onmousedown () {
-            b.style.background = '#C00';
-            update_controller(name, true);
-        }
-        function onmouseup () {
-            b.style.background = '#F00';
-            update_controller(name, false);
-        }
-        if (touchable) {
-            b.ontouchstart = onmousedown;
-            b.ontouchend = onmouseup;
-        } else {
-            b.onmousedown = onmousedown;
-            b.onmouseup = onmouseup;
-        }
-    }
 
-    function init_controller() {
+    function init() {
         while(name.length === 0)
             name = prompt('select a name');
         controller_info['name'] = name;
@@ -126,11 +102,13 @@
         socket.on('connect', function() {
            socket.emit('new_player', name);
         });
-        button('button_a', 'fire');
-        button('button_left', 'left');
-        button('button_right', 'right');
+        setupCanvas();
+        if(touchable) {
+            canvas.addEventListener( 'touchstart', onTouchStart, false );
+            canvas.addEventListener( 'touchmove', onTouchMove, false );
+            canvas.addEventListener( 'touchend', onTouchEnd, false );
+        } 
     }
-
 
 
     var mouseX, mouseY, socket,
@@ -138,45 +116,54 @@
         touchable = 'createTouch' in document,
         touches = []; // array of touch vectors
 
-    if(touchable) {
-        canvas.addEventListener( 'touchstart', onTouchStart, false );
-        canvas.addEventListener( 'touchmove', onTouchMove, false );
-        canvas.addEventListener( 'touchend', onTouchEnd, false );
-    } 
-
-    function init(){
-         console.log('connected');
+    function draw_button(c, x, y, r, color) {
+        c.beginPath();
+        c.strokeStyle = color || "cyan";
+        c.lineWidth = "6";
+        c.arc(x, y, r || 40, 0, Math.PI*2, true);
+        c.stroke();
     }
 
+    setInterval(draw, 20);
     function draw() {
-
         c.clearRect(0,0,canvas.width, canvas.height);
 
+        var DIST = 125;
+        var move_pos = new vec2(DIST, canvas.height - DIST);
+        var fire_pos = new vec2(canvas.width - DIST, canvas.height - DIST);
 
-
+        var move_final_pos = null;
+        var button = false;
         if(touchable) {
-
-            for(var i=0; i<touches.length; i++)
-            {
+            for(var i=0; i< touches.length; i++) {
                 var touch = touches[i];
-                c.beginPath();
-                c.fillStyle = "white";
-                c.fillText("touch id : "+touch.identifier+" x:"+touch.clientX+" y:"+touch.clientY, touch.clientX+30, touch.clientY-30);
-
-                c.beginPath();
-                c.strokeStyle = "cyan";
-                c.lineWidth = "6";
-                c.arc(touch.clientX, touch.clientY, 40, 0, Math.PI*2, true);
-                c.stroke();
-                socket.emit('update_location', {touch_id:touch.identifier, x:touch.clientX, y:touch.clientY, screen_x: canvas.width, screen_y:canvas.height});
+                var tpos = new vec2(touch.clientX, touch.clientY);
+                var diff = vec2.sub(tpos, move_pos);
+                if(diff.lengthSq() < 100*100) {
+                    move_final_pos = diff;
+                }
+                diff = vec2.sub(tpos, fire_pos);
+                if(diff.lengthSq() < 30*30) {
+                    button = true;
+                }
             }
-        } else {
-
-            c.fillStyle  = "white";
-            c.fillText("mouse : "+mouseX+", "+mouseY, mouseX, mouseY);
-
+            draw_button(c, move_pos.x, move_pos.y);
+            if(move_final_pos) {
+                var f = vec2.add(move_final_pos, move_pos);
+                draw_button(c, f.x, f.y, undefined, 'red');
+                update_controller('right', move_final_pos.x < -20);
+                update_controller('left', move_final_pos.x > 20);
+            }  else {
+                update_controller('right', false);
+                update_controller('left', false);
+            }
+            draw_button(c, fire_pos.x, fire_pos.y, 30);
+            if(button) {
+                draw_button(c, fire_pos.x, fire_pos.y, 20, 'red');
+            }
+            update_controller('fire', button);
         }
-        //c.fillText("hello", 0,0);
+
 
     }
 

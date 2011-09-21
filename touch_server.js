@@ -23,12 +23,19 @@ app.listen(8080, function () {
 
 var io         = sio.listen(app);
 var master = null;
+var players = {}
 io.sockets.on('connection', function (socket) {
   socket.on('master', function() {
     master = socket;
   });
+  socket.on('new_player', function (name) {
+    console.log("NEW PLAYER!" + name);
+    if(master !== null) {
+        master.emit('new_player', name);
+        players[name] = socket;
+    }
+  });
   socket.on('update_controller', function (touch) {
-    console.log("---")
     console.log(JSON.stringify(touch));
     if(master !== null) {
         //socket.volatile.broadcast.emit('touch', touch);

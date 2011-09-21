@@ -15,3 +15,7 @@ function smoothstep(edge0, edge1, x) {
 function rand01() {
     return Math.random();
 }
+
+function rand11() {
+    return 2*rand01() - 1;
+}

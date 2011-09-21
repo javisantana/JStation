@@ -1,7 +1,6 @@
 
 
-var bullet_img = document.createElement('img');
-bullet_img.src = '/img/fire.png';
+var bullet_img = load_image('fire.png');
 
 var Bullet = function(pos, vel) {
     this.pos = pos;
