@@ -28,6 +28,7 @@ io.sockets.on('connection', function (socket) {
     master = socket;
   });
   socket.on('update_controller', function (touch) {
+    console.log("---")
     console.log(JSON.stringify(touch));
     if(master !== null) {
         //socket.volatile.broadcast.emit('touch', touch);
