@@ -165,11 +165,15 @@
         }
         if(move_final_pos) {
             var f = vec2.add(move_final_pos, move_pos);
-            update_controller('right', move_final_pos.x < -20);
-            update_controller('left', move_final_pos.x > 20);
+            update_controller('left', move_final_pos.x < -20);
+            update_controller('right', move_final_pos.x > 20);
+            update_controller('up', move_final_pos.y < -20);
+            update_controller('down', move_final_pos.y > 20);
         }  else {
             update_controller('right', false);
             update_controller('left', false);
+            update_controller('up', false);
+            update_controller('down', false);
         }
         update_controller('fire', button);
     }

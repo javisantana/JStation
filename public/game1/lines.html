@@ -130,14 +130,19 @@
             });
             socket.on('update_controller', function(buttons) {
                 console.log("data from " + buttons.name);
-                _.extend(controllers[buttons.ip].controls, buttons);
+
+                var c = controllers[buttons.ip];
+                if (c !== undefined)
+                    _.extend(c.controls, buttons);
             })
 
             function Controller() {
                 this.controls = {
                     left: false,
                     right: false,
-                    fire: false
+                    fire: false,
+                    up: false,
+                    down: false
                 };
             };
 
@@ -148,7 +153,13 @@
 
             function local_controller(c) {
                 window.addEventListener('keyup', function(e) {
-                    if(e.keyCode == 37) { //left
+                    if(e.keyCode == 38) { 
+                        c.controls.up= false;
+                    }
+                    else if(e.keyCode == 40) { 
+                        c.controls.down = false;
+                    }
+                    else if(e.keyCode == 37) { //left
                         c.controls.left = false;
                     } else if(e.keyCode == 39) { // right
                         c.controls.right= false;
@@ -157,7 +168,13 @@
                     }
                 });
                 window.addEventListener('keydown', function(e) {
-                    if(e.keyCode == 37) { //left
+                    if(e.keyCode == 38) { 
+                        c.controls.up= true;
+                    }
+                    else if(e.keyCode == 40) { 
+                        c.controls.down = true;
+                    }
+                    else if(e.keyCode == 37) { //left
                         c.controls.left = true;
                     } else if(e.keyCode == 39) { // right
                         c.controls.right= true;

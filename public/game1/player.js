@@ -48,7 +48,9 @@ Player.prototype.update = function(dt) {
     p.time += dt;
 
     var controls = this.controller.controls;
-    this.angle += PLAYER_TURN_VEL*(dt*controls.left - dt*controls.right);
+    this.angle += PLAYER_TURN_VEL*(dt*controls.right - dt*controls.left);
+    var v = (this.controller.controls.up*1 - this.controller.controls.down*1);
+    this.pos = vec2.add(this.pos, vec2.mul(v*dt*0.1, vec2.fromAngle(this.angle)));
 
     if(this.controller.controls.fire) {
         var canon = vec2.add(p.pos, vec2.mul(this.size/2 + 1, vec2.fromAngle(this.angle)));
