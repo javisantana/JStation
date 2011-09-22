@@ -43,36 +43,15 @@
         width: 100%;
         background: #333;
     }
-    #button_a {
-        position: absolute;
-        right: 40px;;
-        bottom: 40px;
-        width: 50px;
-        height: 50px;
-        background: #F00;
-    }
-
-    #button_left {
-        position: absolute;
-        left: 40px;
-        bottom: 40px;
-        width: 50px;
-        height: 50px;
-        background: #F00;
-    }
-    #button_right{
-        position: absolute;
-        left: 120px;
-        bottom: 40px;
-        width: 50px;
-        height: 50px;
-        background: #F00;
-    }
+    #touch_n {
+        font-size: 40px;
+            }
 </style>
 
 
 </head>
     <body onload = "init()">
+    <div id="touch_n">10</div>
 
 
     <script>
@@ -87,9 +66,10 @@
     }
 
     function update_controller(what, how) {
-        controller_info[what] = how;
-        socket.emit('update_controller', controller_info);
-        console.log(controller_info);
+        if(controller_info[what] != how) {
+            controller_info[what] = how;
+            socket.emit('update_controller', controller_info);
+         }
     }
 
     touchable = 'createTouch' in document
@@ -98,15 +78,17 @@
         while(name.length === 0)
             name = prompt('select a name');
         controller_info['name'] = name;
-        socket = io.connect('192.168.0.102');
+        socket = io.connect(location.origin);
         socket.on('connect', function() {
            socket.emit('new_player', name);
         });
         setupCanvas();
         if(touchable) {
-            canvas.addEventListener( 'touchstart', onTouchStart, false );
-            canvas.addEventListener( 'touchmove', onTouchMove, false );
-            canvas.addEventListener( 'touchend', onTouchEnd, false );
+            document.addEventListener( 'touchstart', onTouchStart, false );
+            document.addEventListener( 'touchmove', onTouchMove, false );
+            document.addEventListener( 'touchend', onTouchEnd, false );
+            document.addEventListener("touchcancel", onTouchEnd, false);
+
         } 
     }
 
@@ -124,7 +106,7 @@
         c.stroke();
     }
 
-    setInterval(draw, 20);
+    setInterval(draw, 100);
     function draw() {
         c.clearRect(0,0,canvas.width, canvas.height);
 
@@ -135,6 +117,7 @@
         var move_final_pos = null;
         var button = false;
         if(touchable) {
+            document.getElementById('touch_n').innerHTML = touches.length;
             for(var i=0; i< touches.length; i++) {
                 var touch = touches[i];
                 var tpos = new vec2(touch.clientX, touch.clientY);
@@ -151,34 +134,62 @@
             if(move_final_pos) {
                 var f = vec2.add(move_final_pos, move_pos);
                 draw_button(c, f.x, f.y, undefined, 'red');
-                update_controller('right', move_final_pos.x < -20);
-                update_controller('left', move_final_pos.x > 20);
             }  else {
-                update_controller('right', false);
-                update_controller('left', false);
             }
             draw_button(c, fire_pos.x, fire_pos.y, 30);
             if(button) {
                 draw_button(c, fire_pos.x, fire_pos.y, 20, 'red');
             }
-            update_controller('fire', button);
         }
 
 
     }
 
+    function controller_logic(touches) {
+        var DIST = 125;
+        var move_pos = new vec2(DIST, canvas.height - DIST);
+        var fire_pos = new vec2(canvas.width - DIST, canvas.height - DIST);
+        var move_final_pos = null;
+        var button = false;
+        for(var i=0; i< touches.length; i++) {
+            var touch = touches[i];
+            var tpos = new vec2(touch.clientX, touch.clientY);
+            var diff = vec2.sub(tpos, move_pos);
+            if(diff.lengthSq() < 100*100) {
+                move_final_pos = diff;
+            }
+            diff = vec2.sub(tpos, fire_pos);
+            if(diff.lengthSq() < 30*30) {
+                button = true;
+            }
+        }
+        if(move_final_pos) {
+            var f = vec2.add(move_final_pos, move_pos);
+            update_controller('right', move_final_pos.x < -20);
+            update_controller('left', move_final_pos.x > 20);
+        }  else {
+            update_controller('right', false);
+            update_controller('left', false);
+        }
+        update_controller('fire', button);
+    }
+
     function onTouchStart(e) {
         touches = e.touches;
+        controller_logic(e.targetTouches);
     }
 
     function onTouchMove(e) {
          // Prevent the browser from doing its default thing (scroll, zoom)
         e.preventDefault();
         touches = e.touches;
+        controller_logic(e.targetTouches);
     }
 
     function onTouchEnd(e) {
+       e.preventDefault();
        touches = e.touches;
+       controller_logic(e.targetTouches);
     }
 
     function onMouseMove(event) {

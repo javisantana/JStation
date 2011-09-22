@@ -21,17 +21,16 @@ app.listen(8080, function () {
 });
 
 
-var io         = sio.listen(app);
+var io = sio.listen(app);
 var master = null;
-var players = {}
+var players = {};
 io.sockets.on('connection', function (socket) {
   socket.on('master', function() {
     master = socket;
   });
   socket.on('new_player', function (name) {
-    console.log("NEW PLAYER!" + name);
     if(master !== null) {
-        master.emit('new_player', name);
+        master.emit('new_player', {name: name, ip: socket.handshake.address.address});
         players[name] = socket;
     }
   });
@@ -39,6 +38,7 @@ io.sockets.on('connection', function (socket) {
     console.log(JSON.stringify(touch));
     if(master !== null) {
         //socket.volatile.broadcast.emit('touch', touch);
+        touch.ip = socket.handshake.address.address;
         master.emit('update_controller', touch);
     }
   });

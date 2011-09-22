@@ -9,6 +9,7 @@
                   radial, 500 25%, 20, 500 25%, 40, from(rgb(2, 5, 6)), to(rgb(13, 31, 44))
                 );
                 background: #111;
+                font-family: "Helvetica";
             }
         </style>
         <meta charset="utf-8" />
@@ -61,7 +62,8 @@
 
             var TestGame = Game.extend({
 
-                players: [],
+                players: new Entities(),
+                player_map: {},
 
                 init: function() {
                     _.bindAll(this, 'on_new_player', 'render', 'render');
@@ -75,22 +77,29 @@
 
                 on_new_player: function(controller) {
                     var pos = new vec2(200*rand11(), 200*rand11());
-                    this.players.push(new Player(pos, controller));
+                    var pl = this.player_map[controller.ip];
+                    if(pl === undefined) {
+                        var np = new Player(pos, controller);
+                        this.player_map[controller.ip] = np;
+                        this.players.add(np);
+                    } else {
+                        this.player_map[controller.ip].controller = controller;
+                    }
                 },
 
                 update: function(dt) {
-                    _.each(this.players,function(p) { p.update(dt) });
+                    this.players.update(dt);
                     entities.update(dt);
                     bullets.update(dt);
                     this.check_collisions();
                 },
 
                 check_collisions: function() {
-                    _.each(this.players, function(p) { 
+                    _.each(this.players.ent, function(p) { 
                         for(var i = 0; i < bullets.ent.length; ++i) {
                             var b = bullets.ent[i];
                             if(p.collide(b.pos)) {
-                                //p.damaged();
+                                p.damaged();
                                 b.explode = true;
                             }
                         }
@@ -101,7 +110,7 @@
                     // clear layer
                     var game = this;
                     game.layer.clearRect(-this.widthHalf, -this.heightHalf, 2*this.widthHalf, 2*this.heightHalf);
-                    _.each(this.players, function(p) { p.render(game.layer) });
+                    this.players.render(game.layer);
                     entities.render(game.layer);
                     bullets.render(game.layer);
                 }
@@ -112,14 +121,16 @@
             var controllers = {}
             socket = io.connect('localhost');
             socket.emit('master');
-            socket.on('new_player', function (name) {
-                console.log("new player: " + name);
-                controllers[name] =  new Controller();
-                g.on_new_player(controllers[name]);
+            socket.on('new_player', function (data) {
+                console.log("new player: " + data.name);
+                controllers[data.ip] =  new Controller();
+                controllers[data.ip].name = data.name;
+                controllers[data.ip].ip = data.ip;
+                g.on_new_player(controllers[data.ip]);
             });
             socket.on('update_controller', function(buttons) {
                 console.log("data from " + buttons.name);
-                _.extend(controllers[buttons.name].controls, buttons);
+                _.extend(controllers[buttons.ip].controls, buttons);
             })
 
             function Controller() {
@@ -131,6 +142,7 @@
             };
 
             var c = new Controller();
+            c.name = "LOCAL";
             local_controller(c);
             g.on_new_player(c);
 
