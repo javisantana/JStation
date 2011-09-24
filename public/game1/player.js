@@ -78,6 +78,7 @@ Player.prototype.destroy = function() {
     document.body.removeChild(this.life);
     document.body.removeChild(this.name);
     this.died = true;
+    epic_explosion(this.pos);
     //this.destroy();
 }
 
@@ -88,7 +89,7 @@ Player.prototype.collide = function(pos) {
 }
 
 Player.prototype.damaged = function(bullet) {
-    this.damage -= 0.02;
+    this.damage -= 0.01;
     if(this.damage < 0) {
         this.damage = 0;
         bullet.who.frags ++;

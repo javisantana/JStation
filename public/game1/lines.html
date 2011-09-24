@@ -105,6 +105,12 @@
                     this.pos = 0;
                     this.players = new Entities(this.respawn);
                     this.bind('newplayer', this.on_new_player);
+
+
+                    /*setInterval(function() {
+                        var pos = new vec2(200*rand11(), 200*rand11());
+                        epic_explosion(pos);
+                    }, 3000);*/
                 },
 
                 respawn: function(player) {
