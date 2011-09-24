@@ -2,13 +2,14 @@
 
 var bullet_img = load_image('fire.png');
 
-var Bullet = function(pos, vel) {
+var Bullet = function(pos, vel, who) {
     this.pos = pos;
     this.oldpos = pos;
     this.vel = vel;
     this.angle = this.vel.angle();
     this.time = 0;
     this.explode = false;
+    this.who = who;
 };
 
 Bullet.prototype.update = function(dt) {
@@ -41,8 +42,8 @@ Bullet.prototype.render = function(ctx) {
 var Bullets = function() {};
 Bullets.prototype = new Entities();
 
-Bullets.prototype.fire = function(pos, vel) {
-    bullets.add(new Bullet(pos, vel));
+Bullets.prototype.fire = function(pos, vel, who) {
+    bullets.add(new Bullet(pos, vel, who));
 }
 
 window.bullets = new Bullets();

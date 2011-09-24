@@ -4,16 +4,19 @@ var img = load_image('player.png');
 
 var Player = function(pos, controller) {
     this.controller = controller;
-
     this.pos = pos;
-    this.angle = 0;
-    this.size = 32;
-    this.died = false;
+    this.frags = 0;
+    this.reset();
+};
 
+Player.prototype.reset = function() {
+    this.angle = 0;
+    this.died = false;
     this.damage = 1.0;
+    this.size = 32;
     // add name
     var name = document.createElement('div');
-    name.innerHTML = controller.name;
+    name.innerHTML = this.controller.name;
     name.style.position = 'absolute';
     name.style.top = this.pos.y + "px";
     name.style.left = this.pos.x + "px";
@@ -39,8 +42,7 @@ var Player = function(pos, controller) {
     this.name = name;
     this.life = life;
     this.life_size = life_size;
-
-};
+}
 
 Player.prototype.update = function(dt) {
     var PLAYER_TURN_VEL = 0.003;
@@ -57,7 +59,9 @@ Player.prototype.update = function(dt) {
         window.bullets.fire(canon,
             vec2.mul(
                 1.0 + 0.1*rand01(),
-                vec2.fromAngle(this.angle + 0.1*rand01())));
+                vec2.fromAngle(this.angle + 0.1*rand01())),
+            this
+            );
     }
     this.life_size.style.width = ((this.damage*100)>>0) + "%";
     //p.pos.x = 100*Math.cos(p.time*p.vel);
@@ -83,10 +87,12 @@ Player.prototype.collide = function(pos) {
    return vec2.sub(pos, this.pos).lengthSq() < s2;
 }
 
-Player.prototype.damaged = function() {
+Player.prototype.damaged = function(bullet) {
     this.damage -= 0.02;
-    if(this.damage < 0)
+    if(this.damage < 0) {
         this.damage = 0;
+        bullet.who.frags ++;
+    }
 }
 
 Player.prototype.render = function(ctx) {

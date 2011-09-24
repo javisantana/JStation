@@ -155,8 +155,6 @@
                 draw_button(c, fire_pos.x, fire_pos.y, 20, 'red');
             }
         }
-
-
     }
 
     function controller_logic(touches) {
@@ -169,7 +167,7 @@
             var touch = touches[i];
             var tpos = new vec2(touch.clientX, touch.clientY);
             var diff = vec2.sub(tpos, move_pos);
-            if(diff.lengthSq() < 100*100) {
+            if(diff.lengthSq() < 150*150) {
                 move_final_pos = diff;
             }
             diff = vec2.sub(tpos, fire_pos);

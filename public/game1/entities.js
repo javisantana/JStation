@@ -1,6 +1,7 @@
 
-var Entities = function() {
+var Entities = function(remove_callback) {
     this.ent = [];
+    this.remove_callback = remove_callback;
 }
 
 Entities.prototype.add = function(b) {
@@ -12,7 +13,9 @@ Entities.prototype.update = function(dt) {
     var len = b.length;
     for(var i = 0; i < len; ++i) {
         if(!b[i].update(dt)) {
-            b.splice(i, 1);
+            var el = b.splice(i, 1)[0]
+            if(this.remove_callback)
+                this.remove_callback(el); 
             len -= 1;
             i-=1;
         }

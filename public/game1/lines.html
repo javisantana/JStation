@@ -11,10 +11,41 @@
                 background: #111;
                 font-family: "Helvetica";
             }
+            #stats {
+                position: absolute;
+                right: 0;
+                width: 200px;
+                height: 100%;
+                background: #333;
+            }
+            #stats ul {
+                padding:0;
+            }
+            #stats li {
+                color: #EEE;
+                padding: 10px 0;
+                font-size: 26px;
+                font-family: 'Helvetica';
+                list-style: none;
+                text-shadow:0 1px white;
+                border-bottom: 1px solid #222;
+                border-top: 1px solid #444;
+            }
+            #stats li span {
+                font-weight: bold;
+                font-size: 40px;
+                padding-right: 30px;
+                padding-left: 10px;
+            }
         </style>
         <meta charset="utf-8" />
     </head>
     <body>
+        <div id="stats">
+            <ul>
+                <li>13 test</li>
+            </ul>
+        </div>
         <script src="/socket.io/socket.io.js"></script>
 
         <script src="js/underscore.js"> </script>
@@ -62,17 +93,27 @@
 
             var TestGame = Game.extend({
 
-                players: new Entities(),
+                players: null,
                 player_map: {},
 
                 init: function() {
-                    _.bindAll(this, 'on_new_player', 'render', 'render');
+                    _.bindAll(this, 'on_new_player', 'render', 'render', 'respawn');
                     this.bkg = new GameBkg(this.create_layer());
                     //this.bkg.render();
                     this.layer = this.create_layer();
                     this.layer.globalCompositeOperation = 'lighter';
                     this.pos = 0;
+                    this.players = new Entities(this.respawn);
                     this.bind('newplayer', this.on_new_player);
+                },
+
+                respawn: function(player) {
+                    var self = this;
+                    setTimeout(function() {
+                        player.reset();
+                        self.players.add(player);
+                    }, 2000);
+                    self.update_leaderboard();
                 },
 
                 on_new_player: function(controller) {
@@ -85,6 +126,7 @@
                     } else {
                         this.player_map[controller.ip].controller = controller;
                     }
+                    this.update_leaderboard();
                 },
 
                 update: function(dt) {
@@ -95,11 +137,11 @@
                 },
 
                 check_collisions: function() {
-                    _.each(this.players.ent, function(p) { 
+                    _.each(this.players.ent, function(p) {
                         for(var i = 0; i < bullets.ent.length; ++i) {
                             var b = bullets.ent[i];
                             if(p.collide(b.pos)) {
-                                p.damaged();
+                                p.damaged(b);
                                 b.explode = true;
                             }
                         }
@@ -113,6 +155,23 @@
                     this.players.render(game.layer);
                     entities.render(game.layer);
                     bullets.render(game.layer);
+                },
+                
+                update_leaderboard: function() {
+                    var stats = document.getElementById('stats');
+                    var pl = [];
+                    _(this.players.ent).each(function(p) {
+                        pl.push([p.frags, p.controller.name]);
+                    });
+                    pl =  pl.sort(function(a, b) {
+                        return a.frags > b.frags;
+                    });
+                    var h = "<ul>";
+                    _(pl).each(function(p) {
+                        h+='<li><span>' + p[0] + '</span>' + p[1] + '</li>';
+                    });
+                    h += "</ul>";
+                    stats.innerHTML = h;
                 }
             });
             var g = new TestGame();
@@ -129,8 +188,6 @@
                 g.on_new_player(controllers[data.ip]);
             });
             socket.on('update_controller', function(buttons) {
-                console.log("data from " + buttons.name);
-
                 var c = controllers[buttons.ip];
                 if (c !== undefined)
                     _.extend(c.controls, buttons);
@@ -153,10 +210,10 @@
 
             function local_controller(c) {
                 window.addEventListener('keyup', function(e) {
-                    if(e.keyCode == 38) { 
+                    if(e.keyCode == 38) {
                         c.controls.up= false;
                     }
-                    else if(e.keyCode == 40) { 
+                    else if(e.keyCode == 40) {
                         c.controls.down = false;
                     }
                     else if(e.keyCode == 37) { //left
@@ -168,10 +225,10 @@
                     }
                 });
                 window.addEventListener('keydown', function(e) {
-                    if(e.keyCode == 38) { 
+                    if(e.keyCode == 38) {
                         c.controls.up= true;
                     }
-                    else if(e.keyCode == 40) { 
+                    else if(e.keyCode == 40) {
                         c.controls.down = true;
                     }
                     else if(e.keyCode == 37) { //left
