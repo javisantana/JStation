@@ -59,6 +59,7 @@
         <script src="entities.js"> </script>
         <script src="particles.js"> </script>
         <script src="bullet.js"> </script>
+        <script src="objects.js"> </script>
         <script src="player.js"> </script>
 
         <script>
@@ -107,6 +108,8 @@
                     this.bind('newplayer', this.on_new_player);
 
 
+                    var pos = new vec2(200*rand11(), 200*rand11());
+                    //this.box = entities.add(new Box(pos, new vec2(100, 100)));
                     /*setInterval(function() {
                         var pos = new vec2(200*rand11(), 200*rand11());
                         epic_explosion(pos);
@@ -152,6 +155,12 @@
                             }
                         }
                      });
+                     /*for(var i = 0; i < bullets.ent.length; ++i) {
+                        var b = bullets.ent[i];
+                        if(this.box.is_inside(b.pos)) {
+                            b.explode = true;
+                        }
+                     }*/
                 },
 
                 render: function() {

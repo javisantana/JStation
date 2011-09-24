@@ -6,6 +6,7 @@ var Entities = function(remove_callback) {
 
 Entities.prototype.add = function(b) {
     this.ent.push(b);
+    return b;
 }
 
 Entities.prototype.update = function(dt) {
