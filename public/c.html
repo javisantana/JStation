@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/game1/js/vec2.js"></script>
+
+<title></title>
+<style type="text/css">
+
+
+    html, body {
+        background-color: #FFF
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+    }
+</style>
+
+
+</head>
+    <body onload = "init()">
+    <h1> controls</h1>
+    <ul>
+        <li> arrow keys: movement </li>
+        <li> fire: space</li>
+    </ul>
+
+
+    <script>
+    var socket;
+    var name = '';
+    var canvas;
+
+    function Controller() {
+        this.controls = {
+            left: false,
+            right: false,
+            fire: false,
+            up: false,
+            down: false
+        };
+    };
+
+    var c = new Controller();
+    function local_controller(c) {
+        window.addEventListener('keyup', function(e) {
+            if(e.keyCode == 38) { 
+                c.controls.up= false;
+            }
+            else if(e.keyCode == 40) { 
+                c.controls.down = false;
+            }
+            else if(e.keyCode == 37) { //left
+                c.controls.left = false;
+            } else if(e.keyCode == 39) { // right
+                c.controls.right= false;
+            } else if(e.keyCode == 32) {
+                c.controls.fire = false;
+            }
+            update_controller();
+        });
+        window.addEventListener('keydown', function(e) {
+
+            if(e.keyCode == 38) { 
+                c.controls.up= true;
+            }
+            else if(e.keyCode == 40) { 
+                c.controls.down = true;
+            }
+            else if(e.keyCode == 37) { //left
+                c.controls.left = true;
+            } else if(e.keyCode == 39) { // right
+                c.controls.right= true;
+            } else if(e.keyCode == 32) {
+                c.controls.fire = true;
+            }
+
+            update_controller();
+        });
+    }
+
+    function update_controller(what, how) {
+        socket.emit('update_controller', c.controls);
+    }
+
+
+    function get_name() {
+        var name = '';
+        if(location.search) {
+            name = location.search.slice(1).split('=')[1];
+            return name;
+        }
+        while(name.length === 0) 
+            name = prompt('select a name');
+        location = location.href + '?name=' + name;
+        return name;
+    }
+    function init() {
+        name = get_name();
+        c.controls['name'] = name;
+        socket = io.connect(location.origin);
+        socket.on('connect', function() {
+           local_controller(c) 
+           socket.emit('new_player', name);
+        });
+        socket.on('disconnect', function() {
+            location.reload();
+        });
+    }
+
+
+</script>
+</body>
+</html>

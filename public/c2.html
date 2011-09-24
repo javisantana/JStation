@@ -45,6 +45,7 @@
     }
     #touch_n {
         font-size: 40px;
+        display: none;
             }
 </style>
 
@@ -74,13 +75,26 @@
 
     touchable = 'createTouch' in document
 
-    function init() {
-        while(name.length === 0)
+    function get_name() {
+        var name = '';
+        if(location.search) {
+            name = location.search.slice(1).split('=')[1];
+            return name;
+        }
+        while(name.length === 0) 
             name = prompt('select a name');
+        location = location.href + '?name=' + name;
+        return name;
+    }
+    function init() {
+        name = get_name();
         controller_info['name'] = name;
         socket = io.connect(location.origin);
         socket.on('connect', function() {
            socket.emit('new_player', name);
+        });
+        socket.on('disconnect', function() {
+            init();
         });
         setupCanvas();
         if(touchable) {
